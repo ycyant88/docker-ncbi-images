@@ -1,0 +1,24 @@
+{
+	"name": "docker-ncbi-images",
+	"build": {
+		"dockerfile": "Dockerfile"
+	},
+	"mounts": [
+		"source=dev-containers-docker-ncbi-images-bashhistory,target=/home/vscode/commandhistory"
+	],
+	"remoteUser": "vscode",
+	"features": {
+		"ghcr.io/devcontainers/features/docker-in-docker:4.0.0": {
+			"moby": true,
+			"installDockerBuildx": true
+		}
+	},
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"Google.geminicodeassist",
+				"hashicorp.hcl"
+			]
+		}
+	}
+}

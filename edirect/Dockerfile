@@ -15,12 +15,20 @@ ENV EDIRECT_VERSION="${edirect_version}" \
     LANG="C" \
     LC_ALL="C" \
     PATH="/home/${username}/edirect:${PATH}" \
-    TZ="Asia/Singapore" \
+    TZ="UTC" \
     UBUNTU_VERSION="${ubuntu_version}"
 
-RUN apt update \
-    && apt install -y sudo curl ca-certificates openssl libxml-simple-perl libwww-perl libnet-perl build-essential \
-    && rm -rf /var/lib/apt/lists/* 
+RUN ln -fs /usr/share/zoneinfo/UTC /etc/localtime \
+    && echo UTC > /etc/timezone \
+    && apt-get update \
+    && DEBIAN_FRONTEND=noninteractive \
+       apt-get install -y --no-install-recommends \
+           curl \
+           libxml-simple-perl \
+           libwww-perl \
+           libnet-perl \
+           build-essential \
+    && rm -rf /var/lib/apt/lists/*
 
 RUN groupadd ${groupname} \
     && useradd --no-log-init -r -g ${groupname} ${username} \

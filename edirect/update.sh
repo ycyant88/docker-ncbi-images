@@ -9,13 +9,23 @@ update_edirect_version()
 {
     local latest_versions=""
 
-    latest_versions=$(curl -s "https://ftp.ncbi.nlm.nih.gov/entrez/entrezdirect/versions/" |
-        sed -nE 's/.*href="([0-9]+\.[0-9]+\.[0-9]+)\/".*/\1/p' |
-        sort -V |
-        sed -n '/^22\.0\./,$p') # > 22.0.*
-    echo "${latest_versions}" | head -n 1 > .edirect-version
-    echo "${latest_versions}" > .edirect-versions
+    latest_versions=$(
+        curl -fsSL "https://ftp.ncbi.nlm.nih.gov/entrez/entrezdirect/versions/" |
+            sed -nE 's/.*href="([0-9]+\.[0-9]+\.[0-9]+)\/".*/\1/p' |
+            awk -F. '$1 > 22 || ($1 == 22 && $2 > 0)' |
+            sort -Vr
+    )
+
+    printf '%s\n' "${latest_versions}" | head -n 1 > .edirect-version
+    printf '%s\n' "${latest_versions}" > .edirect-versions
+
+    echo ".edirect-version:"
+    cat .edirect-version
+
+    echo ".edirect-versions:"
+    cat .edirect-versions
 }
+
 
 update_ubuntu_version()
 {
@@ -35,12 +45,18 @@ update_ubuntu_version()
     latest_versions=$(
         printf '%s' "${latest_versions}" |
         grep -E '^[0-9]+\.04$' |
-        awk -F. '$1 > 20 && $1 % 2 == 0' |
-        sort -Vr
+        awk -F. '$1 > 19 && $1 % 2 == 0' |
+        sort -Vr # > 19.04
     )
 
-    echo "${latest_versions}" | head -n 1 > .ubuntu-version
-    echo "${latest_versions}" > .ubuntu-versions
+    printf '%s\n' "${latest_versions}" | head -n 1 > .ubuntu-version
+    printf '%s\n' "${latest_versions}" > .ubuntu-versions
+
+    echo ".ubuntu-version:"
+    cat .ubuntu-version
+
+    echo ".ubuntu-versions:"
+    cat .ubuntu-versions
 }
 
 update_edirect_version
