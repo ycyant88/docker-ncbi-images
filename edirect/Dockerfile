@@ -2,7 +2,7 @@
 
 ARG ubuntu_version
 
-FROM index.docker.io/library/ubuntu:${ubuntu_version} AS base
+FROM index.docker.io/library/ubuntu:${ubuntu_version}
 
 ARG version
 ARG edirect_version="${version}"
@@ -19,6 +19,10 @@ ENV EDIRECT_VERSION="${edirect_version}" \
     TZ="Asia/Singapore" \
     UBUNTU_VERSION="${ubuntu_version}"
 
+RUN apt update \
+    && apt install -y curl libxml-simple-perl libwww-perl libnet-perl build-essential \
+    && rm -rf /var/lib/apt/lists/* 
+
 RUN groupadd ${grpname} \
     && useradd --no-log-init -r -g ${grpname} ${username} \
     && mkdir -vp /home/${username} \
@@ -27,12 +31,7 @@ RUN groupadd ${grpname} \
 USER ${username}
 WORKDIR /home/${username}/
 
-FROM base
-
-RUN apt update \
-    && apt install -y curl libxml-simple-perl libwww-perl libnet-perl build-essential \
-    && rm -rf /var/lib/apt/lists/* \
-    && sh -c "$(curl -fsSL https://ftp.ncbi.nlm.nih.gov/entrez/entrezdirect/install-edirect.sh)"
+RUN sh -c "$(curl -fsSL https://ftp.ncbi.nlm.nih.gov/entrez/entrezdirect/install-edirect.sh)"
 
 COPY --chown=${username}:${grpname} installconfirm /home/${username}/
 
