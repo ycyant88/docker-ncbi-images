@@ -3,9 +3,9 @@
 
 set -e
 
-echo "==> Running $(dirname "$(realpath "$0")")/update.sh"
+echo "Running $(dirname "$(realpath "$0")")/update-tags.sh"
 
-update_ubuntu()
+function update_ubuntu()
 {
     local latest_versions=""
     local image_registry_url="https://hub.docker.com/v2/repositories/library/ubuntu/tags?page_size=100"
@@ -36,13 +36,46 @@ update_ubuntu()
 
     echo ".ubuntu-versions:"
     cat .ubuntu-versions
+
+    cd - >/dev/null
 }
 
-update_edirect()
+function update_blast()
 {
     local latest_versions=""
 
-    cd src/edirect || echo "not found" && exit 1
+    cd src/blast || {
+      echo "not found"
+      exit 1
+    }
+
+    latest_versions=$(
+    curl -fsSL "https://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/" |
+        sed -nE 's/.*href="([0-9]+\.[0-9]+\.[0-9]+)\/".*/\1/p' |
+        awk -F. '$1 == 2 && ($2 > 14 || ($2 == 14 && $3 >= 1))' |
+        sort -Vr
+    )
+
+    printf '%s\n' "${latest_versions}" | head -n 1 > .blast-version
+    printf '%s\n' "${latest_versions}" > .blast-versions
+
+    echo ".blast-version:"
+    cat .blast-version
+
+    echo ".blast-versions:"
+    cat .blast-versions
+
+    update_ubuntu
+}
+
+function update_edirect()
+{
+    local latest_versions=""
+
+    cd src/edirect || {
+      echo "not found"
+      exit 1
+    }
 
     latest_versions=$(
         curl -fsSL "https://ftp.ncbi.nlm.nih.gov/entrez/entrezdirect/versions/" |
@@ -63,4 +96,5 @@ update_edirect()
     update_ubuntu
 }
 
+update_blast
 update_edirect

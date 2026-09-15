@@ -7,14 +7,12 @@ FROM index.docker.io/library/ubuntu:${ubuntu_version}
 ARG version
 ARG edirect_version="${version}"
 ARG ubuntu_version
-ARG username=docker
-ARG groupname=docker
 
 ENV EDIRECT_VERSION="${edirect_version}" \
-    EMAIL="docker@ncbi.nlm.nih.gov" \
+    HOME="/workspace" \
     LANG="C" \
     LC_ALL="C" \
-    PATH="/home/${username}/edirect:${PATH}" \
+    PATH="/workspace/edirect:${PATH}" \
     TZ="UTC" \
     UBUNTU_VERSION="${ubuntu_version}"
 
@@ -30,18 +28,11 @@ RUN ln -fs /usr/share/zoneinfo/UTC /etc/localtime \
            build-essential \
     && rm -rf /var/lib/apt/lists/*
 
-RUN groupadd ${groupname} \
-    && useradd --no-log-init -r -g ${groupname} ${username} \
-    && mkdir -vp /home/${username} \
-    && chown -Rc ${username}:${groupname} /home/${username}
+USER root
+WORKDIR /workspace
 
-USER ${username}
-WORKDIR /home/${username}/
-
-COPY --chown=${username}:${groupname} --chmod=755 installconfirm /home/${username}/
+COPY --chown=root:root --chmod=755 installconfirm /workspace
 
 RUN sh -c "$(curl -fsSL https://ftp.ncbi.nlm.nih.gov/entrez/entrezdirect/install-edirect.sh)" \
-    && sed -i 's/^http_version="1\.0"$/http_version="1.1"/' /home/${username}/edirect/nquire \
-    && bash /home/${username}/installconfirm
-
-CMD ["/bin/bash"]
+    && sed -i 's/^http_version="1\.0"$/http_version="1.1"/' /workspace/edirect/nquire \
+    && bash /workspace/installconfirm

@@ -13,23 +13,33 @@ permissions:
 jobs:
   update-tags:
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v4
 
-      - run: |
+      - name: Update tags
+        run: |
           chmod +x ./src/update-tags.sh
           ./src/update-tags.sh
 
       - name: Commit updated tags
         run: |
           git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config user.email "41898282+users.noreply.github.com"
           git add .
           if git diff --cached --quiet; then
             exit 0
           fi
           git commit -m "Update tags"
+          images="$(git diff-tree --no-commit-id --name-only -r HEAD |
+              awk -F/ '$1 == "src" && NF >= 2 {print $2}' |
+              sort -u
+          )"
           git push
-          gh workflow run docker-push-latest.yaml --ref "$GITHUB_REF_NAME"
+          for image in $images; do
+            gh workflow run docker-push-latest.yaml \
+              --ref "$GITHUB_REF_NAME" \
+              -f image="$image"
+          done
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

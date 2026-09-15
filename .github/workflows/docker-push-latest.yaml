@@ -1,6 +1,6 @@
 ---
-name: Docker push images
-run-name: Docker push ${{ inputs.image }} images
+name: Docker push latest
+run-name: Docker push ${{ inputs.image }}:latest
 
 on:
   workflow_dispatch:
@@ -11,8 +11,9 @@ on:
         type: string
 
 jobs:
-  docker-push:
+  docker-push-latest:
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v4
 
@@ -27,6 +28,7 @@ jobs:
 
       - run: echo "DOCKER_BUILDKIT=1" >> "$GITHUB_ENV"
 
-      - run: |
-          chmod +x ./src/build-image.sh
-          ./src/build-image.sh "${{ inputs.image }}"
+      - name: Build and push
+        run: |
+          chmod +x ./src/build-image-latest.sh
+          ./src/build-image-latest.sh "${{ inputs.image }}"

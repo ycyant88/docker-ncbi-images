@@ -4,10 +4,16 @@ group "default" {
 
 target "metadata" {
   labels = {
-    "Description" = "NCBI EDirect"
-    "Maintainer"  = "ycyant88@gmail.com"
-    "Vendor"      = "NCBI/NLM/NIH"
-    "Version"     = "${EDIRECT_VERSION}-ubuntu${UBUNTU_VERSION}"
+    "org.opencontainers.image.authors"    = "${GITHUB_REPOSITORY_OWNER}"
+    "org.opencontainers.image.created"    = "${DATE}"
+    "org.opencontainers.image.os.name"    = "ubuntu"
+    "org.opencontainers.image.os.version" = "${UBUNTU_VERSION}"
+    "org.opencontainers.image.ref.name"   = "${GITHUB_REF_NAME}"
+    "org.opencontainers.image.revision"   = "${GITHUB_SHA}"
+    "org.opencontainers.image.source"     = "${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}"
+    "org.opencontainers.image.title"      = "${IMAGE_NAME}"
+    "org.opencontainers.image.url"        = "${IMAGE_REGISTRY}/${IMAGE_NAMESPACE}/${IMAGE_NAME}"
+    "org.opencontainers.image.version"    = "${EDIRECT_VERSION}"
   }
 }
 
@@ -39,6 +45,18 @@ target "settings" {
 }
 
 variable "EDIRECT_VERSION" {}
+
+variable "DATE" {}
+
+variable "GITHUB_REF_NAME" {}
+
+variable "GITHUB_REPOSITORY" {}
+
+variable "GITHUB_REPOSITORY_OWNER" {}
+
+variable "GITHUB_SERVER_URL" {}
+
+variable "GITHUB_SHA" {}
 
 variable "IMAGE_NAME" {}
 
