@@ -5,30 +5,9 @@ set -e
 
 echo "==> Running $(dirname "$(realpath "$0")")/update.sh"
 
-update_edirect_version()
+update_ubuntu()
 {
     local latest_versions=""
-
-    latest_versions=$(
-        curl -fsSL "https://ftp.ncbi.nlm.nih.gov/entrez/entrezdirect/versions/" |
-            sed -nE 's/.*href="([0-9]+\.[0-9]+\.[0-9]+)\/".*/\1/p' |
-            awk -F. '$1 > 22 || ($1 == 22 && $2 > 0)' |
-            sort -Vr
-    )
-
-    printf '%s\n' "${latest_versions}" | head -n 1 > .edirect-version
-    printf '%s\n' "${latest_versions}" > .edirect-versions
-
-    echo ".edirect-version:"
-    cat .edirect-version
-
-    echo ".edirect-versions:"
-    cat .edirect-versions
-}
-
-
-update_ubuntu_version()
-{
     local image_registry_url="https://hub.docker.com/v2/repositories/library/ubuntu/tags?page_size=100"
 
     while [[ -n "${image_registry_url}" ]]; do
@@ -59,5 +38,29 @@ update_ubuntu_version()
     cat .ubuntu-versions
 }
 
-update_edirect_version
-update_ubuntu_version
+update_edirect()
+{
+    local latest_versions=""
+
+    cd src/edirect || echo "not found" && exit 1
+
+    latest_versions=$(
+        curl -fsSL "https://ftp.ncbi.nlm.nih.gov/entrez/entrezdirect/versions/" |
+            sed -nE 's/.*href="([0-9]+\.[0-9]+\.[0-9]+)\/".*/\1/p' |
+            awk -F. '$1 > 22 || ($1 == 22 && $2 > 0)' |
+            sort -Vr
+    )
+
+    printf '%s\n' "${latest_versions}" | head -n 1 > .edirect-version
+    printf '%s\n' "${latest_versions}" > .edirect-versions
+
+    echo ".edirect-version:"
+    cat .edirect-version
+
+    echo ".edirect-versions:"
+    cat .edirect-versions
+
+    update_ubuntu
+}
+
+update_edirect

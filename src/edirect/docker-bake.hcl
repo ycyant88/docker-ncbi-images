@@ -16,9 +16,9 @@ target "push" {
   output    = ["type=registry"]
   platforms = ["linux/amd64", "linux/arm64"]
   tags = [
-    "${IMAGE_REGISTRY}/${IMAGE_NAME}:latest",
-    "${IMAGE_REGISTRY}/${IMAGE_NAME}:${EDIRECT_VERSION}",
-    "${IMAGE_REGISTRY}/${IMAGE_NAME}:${EDIRECT_VERSION}-ubuntu${UBUNTU_VERSION}"
+    "${IMAGE_REGISTRY}/${IMAGE_NAMESPACE}/${IMAGE_NAME}:latest",
+    "${IMAGE_REGISTRY}/${IMAGE_NAMESPACE}/${IMAGE_NAME}:${EDIRECT_VERSION}",
+    "${IMAGE_REGISTRY}/${IMAGE_NAMESPACE}/${IMAGE_NAME}:${EDIRECT_VERSION}-ubuntu${UBUNTU_VERSION}"
   ]
 }
 
@@ -41,6 +41,8 @@ target "settings" {
 variable "EDIRECT_VERSION" {}
 
 variable "IMAGE_NAME" {}
+
+variable "IMAGE_NAMESPACE" {}
 
 variable "IMAGE_REGISTRY" {}
 
